@@ -1,0 +1,26 @@
+<!--<configuration>-->
+<!--    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; log4jdbc 로그 필터링 &ndash;&gt;-->
+<!--    <logger name="log4jdbc.log4j2" level="INFO" /> &lt;!&ndash; 기본 로그 레벨 &ndash;&gt;-->
+<!--    <logger name="jdbc.sqltiming" level="DEBUG" /> &lt;!&ndash; SQL 실행 시간 &ndash;&gt;-->
+<!--    <logger name="jdbc.sqlonly" level="INFO" /> &lt;!&ndash; SQL 쿼리만 출력 &ndash;&gt;-->
+<!--    <logger name="jdbc.resultset" level="OFF" /> &lt;!&ndash; ResultSet 관련 로그 비활성화 &ndash;&gt;-->
+<!--    <logger name="jdbc.audit" level="OFF" /> &lt;!&ndash; Audit 로그 비활성화 &ndash;&gt;-->
+<!--    <logger name="jdbc.connection" level="OFF" /> &lt;!&ndash; Connection 로그 비활성화 &ndash;&gt;-->
+
+<!--    &lt;!&ndash; Hibernate SQL 로그 &ndash;&gt;-->
+<!--    <logger name="org.hibernate.SQL" level="DEBUG" />-->
+<!--    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />-->
+
+<!--    &lt;!&ndash; Spring Security 로그 최소화 &ndash;&gt;-->
+<!--    <logger name="org.springframework.security" level="WARN" />-->
+
+<!--    <root level="INFO">-->
+<!--        <appender-ref ref="STDOUT" />-->
+<!--    </root>-->
+<!--</configuration>-->

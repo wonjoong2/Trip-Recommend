@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<script>
+
+    function closeBtn(){
+        window.close();
+    }
+
+</script>
+<body>
+<div class="col-md-12">
+    <div class="form-group">
+        <label for="user_id">아이디</label>
+        <input type="text" class="form-control" id="user_id" th:value="${result == null ? '해당 이메일의 아이디가 없습니다' : result}">
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-7 d-flex justify-content-center">
+            <button class="btn btn-secondary py-3 px-5" onclick="closeBtn()">닫기</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

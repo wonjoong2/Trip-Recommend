@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 등록 페이지</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link href="/css/style.css" rel="stylesheet" type="text/css">
+  <script>
+    function saveBtn() {
+      var params = {
+        id: $('#id').val(),
+        title: $('#title').val(),
+        content: $('#content').val()
+      };
+
+      if (confirm('저장하시겠습니까?')) {
+        $.ajax({
+          url:'/board/BoardRegister',  // Thymeleaf로 URL 동적 생성
+          type: 'post',
+          data: params,
+          dataType: 'json',
+          contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+          success: function(data) {
+            alert('저장완료');
+          },
+          error: function(err) {
+            console.log(err);
+          },
+          complete: function() {
+
+          }
+        });
+      }
+    }
+  </script>
+</head>
+<body>
+<div class="ftco-section">
+  <div class="container">
+    <div class="justify-content-center mb-3 pb-3">
+      <div class="heading-section text-center">
+        <h2>게시글 등록 페이지</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="id">ID</label>
+          <input type="text" class="form-control" id="id" name="id" th:value="${userId}" required readonly>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="title">제목</label>
+          <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+      </div>
+
+      <br />
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="content">본문</label>
+          <textarea cols="40" rows="10" class="form-control" id="content"
+                    name="content" required></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-xl-7">
+        <div class="row mt-2">
+          <div class="col-md-6">
+            <a th:href="@{/board/BoardList}" class="btn btn-secondary py-3 px-5 w-100">목록</a>
+          </div>
+          <div class="col-md-6">
+            <button type="button" class="btn btn-primary py-3 px-5 w-100"
+                    onclick="saveBtn()">게시글 등록</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

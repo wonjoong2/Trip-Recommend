@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/css/board/BoardList.css" rel="stylesheet" type="text/css">
+</head>
+<style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .page-btn {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+
+    .page-btn.active {
+        font-weight: bold;
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+<body>
+<div class="menu" th:insert="includes/header :: header"></div>
+<div class="ftco-section admin-list">
+    <div class="container">
+        <div style="height: 10px;"></div>
+
+        <div class="justify-content-center mb-3 pb-3">
+            <div class="heading-section text-center">
+                <h2>Travel Course</h2>
+            </div>
+        </div>
+        <div class="justify-content-center mb-3 pb-3">
+            <div style="width: 100%; height: 50px;">
+                <span>지역 : </span>
+                <select class="btn btn-primary mb-2" style="width:100px;" id="areaCode" onchange="sigunCode(this)">
+                    <option value="">전체</option>
+                    <option value="1">서울</option>
+                    <option value="6">부산</option>
+                    <option value="4">대구</option>
+                    <option value="2">인천</option>
+                    <option value="5">광주</option>
+                    <option value="3">대전</option>
+                    <option value="7">울산</option>
+                    <option value="8">세종</option>
+                    <option value="31">경기</option>
+                    <option value="32">강원</option>
+                    <option value="33">충북</option>
+                    <option value="34">충남</option>
+                    <option value="35">경북</option>
+                    <option value="36">경남</option>
+                    <option value="37">전북</option>
+                    <option value="38">전남</option>
+                    <option value="39">제주</option>
+                </select>
+                <span>시군구 : </span>
+                <select class="btn btn-primary mb-2" style="width:15ㅗ0px;" id="sigunCode">
+
+                </select>
+                <input type="button" style="float:right;" class="btn btn-primary mb-2" value="검색" onclick="apiTest()"/>
+            </div>
+        </div>
+        <div class="bd-example-snippet bd-code-snippet">
+            <div class="bd-example">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 90px;">주소</th>
+                        <th scope="col" style="width: 90px;">이미지</th>
+                        <th scope="col" style="width: 90px;">장소</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="bd-example-snippet bd-code-snippet">
+                <div id="pagination" class="pagination"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    function apiTest(){
+        var params = {
+            areaCode : $("#areaCode option:selected").val(),
+            sigunCode : $("#sigunCode option:selected").val(),
+            pageNo : "1",
+        };
+        $.ajax({
+            url: '/travel/api/travel-api1',
+            type: 'get',
+            data: params,
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(data) {
+                console.log(data)
+                console.log(data)
+                var list = data.response.body.items.item;
+                var pageNo = data.response.body.pageNo;
+                var totalCount = data.response.body.totalCount;
+                renderTable(list);
+                renderPagination(pageNo, totalCount);
+            },
+            error: function(err) {
+                console.log(err);
+            },
+        });
+    }
+
+    function renderTable(list) {
+        var tbody = $("table tbody"); // <tbody> 요소 선택
+        tbody.empty(); // 기존 내용을 비우기
+
+        list.forEach(function(item) {
+            var imageSrc = item.firstimage ? item.firstimage : '';
+            var row = `
+            <tr>
+                <td style="text-decoration-line: underline; cursor:pointer;" onclick="detailBtn('${item.contentid}', '${item.contenttypeid}', '${item.title}', '${item.firstimage}','${item.addr1}')">${item.addr1}</td>
+                <td>${imageSrc ? `<img src="${imageSrc}" alt="이미지" style="width: 100px; height: 50px;">` : ''}</td>
+                <td>${item.title}</td>
+            </tr>
+        `;
+            tbody.append(row);
+        });
+    }
+
+    function renderPagination(pageNo, totalCount, itemsPerPage = 10, groupSize = 10) {
+        var pagination = $("#pagination");
+        pagination.empty(); // 기존 버튼 제거
+
+        var totalPages = Math.ceil(totalCount / itemsPerPage); // 총 페이지 수
+        var currentGroup = Math.ceil(pageNo / groupSize); // 현재 그룹 번호
+        var startPage = (currentGroup - 1) * groupSize + 1; // 현재 그룹의 첫 번째 페이지 번호
+        var endPage = Math.min(startPage + groupSize - 1, totalPages); // 현재 그룹의 마지막 페이지 번호
+
+        // 이전 그룹 버튼
+        if (startPage > 1) {
+            pagination.append(
+                `<button class="page-btn" onclick="changePage(${startPage - 1})"><<</button>`
+            );
+        }
+
+        // 현재 그룹의 페이지 버튼들
+        for (var i = startPage; i <= endPage; i++) {
+            var pageButton = `<button
+            class="page-btn ${i === pageNo ? 'active' : ''}"
+            onclick="changePage(${i})">${i}</button>`;
+            pagination.append(pageButton);
+        }
+
+        // 다음 그룹 버튼
+        if (endPage < totalPages) {
+            pagination.append(
+                `<button class="page-btn" onclick="changePage(${endPage + 1})">>></button>`
+            );
+        }
+    }
+
+
+    function changePage(newPageNo) {
+        var params = {
+            areaCode: $("#areaCode option:selected").val(),
+            sigunCode : $("#sigunCode option:selected").val(),
+            pageNo: newPageNo, // 새로운 페이지 번호
+        };
+
+        $.ajax({
+            url: '/travel/api/travel-api1',
+            type: 'get',
+            data: params,
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(data) {
+                console.log(data)
+                var list = data.response.body.items.item;
+                var pageNo = data.response.body.pageNo;
+                var totalCount = data.response.body.totalCount;
+                renderTable(list);
+                renderPagination(pageNo, totalCount);
+            },
+            error: function(err) {
+                console.log(err);
+            },
+        });
+    }
+
+
+    function detailBtn(contentId, contentTypeId, title, firstImage,addr1){
+        var params = {
+            contentId: contentId,
+            contentTypeId: contentTypeId,
+            title : title,
+            firstImage : firstImage,
+            addr1 : addr1,
+            hideFlag : "show",
+        };
+        CommonUtil.openPopup('/travel/api/travelDetail', params, '여행코스 상세', 800, 600, '');
+
+    }
+
+    function sigunCode(e){
+        var areaCode = e.value;
+        var params = {
+            areaCode : areaCode,
+        }
+        //시군구 코드 찾기
+        $.ajax({
+            url: '/travel/api/travel-api3',
+            type: 'get',
+            data: params,
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(data) {
+                var result = data.response.body.items.item;
+                console.log(result)
+                var sigunSelect = $("#sigunCode");
+                sigunSelect.empty();
+                sigunSelect.append('<option value="">전체</option>');
+                if (result && result.length > 0) {
+                    result.forEach(function(item) {
+                        var option = `<option value="${item.code}">${item.name}</option>`;
+                        sigunSelect.append(option);
+                    });
+                }
+            },
+            error: function(err) {
+                console.log(err);
+            },
+        });
+    }
+
+
+
+</script>
+<script type="text/javascript" th:src="@{/js/commonUtil/commonUtil.js}"></script>
+<script type="text/javascript" th:src="@{/js/commonUtil/common.js}"></script>

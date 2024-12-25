@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container" th:fragment="header">
+    <div class="justify-content-center mb-3 pb-3">
+      <nav class="clearfix">
+          <ul class="clearfix">
+<!--              <li><a href="">Home</a></li> &lt;!&ndash;""<-여기 부분에 URL 작성하면 됨&ndash;&gt;-->
+<!--              <li><a href="">About</a></li>-->
+<!--              <li><a href="">Project</a></li>-->
+              <li><a href="/travel/TravelList">Travel</a></li>
+              <li><a href="/board/BoardList">Community</a></li>
+          </ul>
+      </nav>
+        <button type="button" class="btn btn-primary mb-2" style="float: right;margin-left:10px;" onclick="logoutBtn()">로그아웃</button>
+        <button type="button" class="btn btn-primary mb-2" style="float: right;margin-left:10px;" onclick="myPageBtn()">마이페이지</button>
+        <button type="button" class="btn btn-primary mb-2" style="float: right;" onclick="myTravelBtn()">내여행 목록</button>
+    </div>
+</div>
+</body>
+</html>
+

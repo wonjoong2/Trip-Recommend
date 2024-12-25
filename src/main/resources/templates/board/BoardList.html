@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>임시 리스트</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/css/board/BoardList.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="menu" th:insert="includes/header :: header"></div>
+<div class="ftco-section admin-list">
+    <div class="container">
+        <div class="justify-content-center mb-3 pb-3">
+            <div class="heading-section text-center">
+                <h2>Community</h2>
+            </div>
+        </div>
+        <div class="justify-content-center mb-3 pb-3">
+            <div style="width: 100%; height: 50px;">
+                <span>제목 : </span>
+                <input type="text" id="search_title">
+                <input type="button" style="float:right;" class="btn btn-primary mb-2" value="검색" onclick="searchBtn()"/>
+            </div>
+        </div>
+        <div>
+            <a href="/board/BoardRegister" class="btn btn-primary mb-2">게시글 작성</a>
+            <button type="button" class="btn btn-primary mb-2" onclick="deleteBtn()" style="float:right;">게시글 삭제</button>
+        </div>
+        <div class="bd-example-snippet bd-code-snippet">
+            <div class="bd-example">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 30px;">
+                            <input type="checkbox" id="selectAll" onclick="checkBoxAll(this)">
+                        </th>
+                        <th scope="col" style="width: 60px;">닉네임</th>
+                        <th scope="col" style="width: 120px;">제목</th>
+                        <th scope="col" style="width: 60px;">날짜정보</th>
+                        <th scope="col" style="width: 30px;">조회수</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="board : ${BoardList}">
+                        <td>
+                            <input type="checkbox" class="row-checkbox" th:value="${board.boardSeq}">
+                        </td>
+                        <td th:text="${board.user.userNickname}"></td>
+                        <td style="text-decoration-line: underline; cursor:pointer;" th:text="${board.boardTitle}" th:onclick="'detailBtn(' + ${board.boardSeq} + ')'"></td>
+                        <td th:text="${board.boardCreateDt}"></td>
+                        <td th:text="${board.boardCnt}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+<script>
+    function detailBtn(boardSeq) {
+
+        var params = {
+            boardSeq: Number(boardSeq),
+        };
+        CommonUtil.openPopup('/board/BoardDetail', params, '상세 정보', 1400, 600, '');
+
+        CommonUtil.postAjax('/board/BoardCntUpdate', params).done(function(result) {
+
+        })
+        //location.reload(); // 페이지 새로고침
+    }
+    function refresh() {
+        location.reload();
+    }
+    function searchBtn(){
+        var params = {
+            searchTitle: $('#search_title').val(),
+        };
+        $.ajax({
+            url: '/board/selectBoardList',
+            type: 'post',
+            data: params,
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(data) {
+
+                var tableBody = $('table tbody');
+                tableBody.empty();
+
+                var list = data.list;
+                list.forEach(function(board) {
+                    var row = '<tr>' +
+                        '<td> <input type="checkbox" class="row-checkbox" value="' + board.boardSeq + '"> </td>' +
+                        '<td></td>'+
+                        '<td style="text-decoration-line: underline; cursor:pointer;" onclick="detailBtn(' + board.boardSeq + ')">' + board.boardTitle + '</td>' +
+                        '<td>' + board.boardCreateDt + '</td>' +
+                        '<td>' + board.boardCnt + '</td>' +
+                        '</tr>';
+                    tableBody.append(row);
+                });
+            },
+            error: function(err) {
+                console.log(err);
+            },
+        });
+    }
+
+    function checkBoxAll(selectAll){
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+    }
+
+    function deleteBtn(){
+        const checkBoxArr = [];
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        checkboxes.forEach(checkbox => {
+            checkBoxArr.push(checkbox.value);
+        });
+
+        const params = JSON.stringify({ boardSeqs: checkBoxArr });
+        if(confirm('삭제하시겠습니까?')){
+            $.ajax({
+                url: '/board/deleteBoard',
+                type: 'post',
+                data: params,
+                dataType: 'json',
+                contentType: 'application/json; charset=UTF-8',
+                success: function(data) {
+                    alert('삭제 성공!');
+                    refresh();
+                },
+                error: function(err) {
+                    console.log(err);
+                },
+            });
+        }else{
+            return false;
+        }
+
+
+    }
+
+
+</script>
+
+<script type="text/javascript" th:src="@{/js/commonUtil/commonUtil.js}"></script>
+<script type="text/javascript" th:src="@{/js/commonUtil/common.js}"></script>

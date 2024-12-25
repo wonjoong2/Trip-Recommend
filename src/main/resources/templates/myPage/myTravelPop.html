@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link href="/css/style.css" rel="stylesheet" type="text/css">
+  <link href="/css/board/BoardList.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="ftco-section admin-list">
+  <div class="container">
+    <div style="height: 10px;"></div>
+
+    <div class="justify-content-center mb-3 pb-3">
+      <div class="heading-section text-center">
+        <h2>Travel Course List</h2>
+      </div>
+    </div>
+    <div class="justify-content-center mb-3 pb-3">
+      <div style="width: 100%; height: 50px;">
+        <input type="button" style="float:right;" class="btn btn-primary mb-2" value="지도 보기" onclick="googleMapPop()"/>
+      </div>
+    </div>
+    <div class="bd-example-snippet bd-code-snippet">
+      <div class="bd-example">
+        <table class="table table-hover table-bordered">
+          <thead>
+          <tr>
+            <th scope="col" style="width: 90px;">주소</th>
+            <th scope="col" style="width: 90px;">이미지</th>
+            <th scope="col" style="width: 90px;">장소</th>
+          </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      </div>
+      <div class="bd-example-snippet bd-code-snippet">
+        <div id="pagination" class="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+<input type="hidden" id="userSeq" th:value="${params.userSeq}">
+</html>
+
+<script>
+  let list = [];
+  $(document).ready(function() {
+    var params = {
+      areaCode : $("#areaCode option:selected").val(),
+      sigunCode : $("#sigunCode option:selected").val(),
+      pageNo : "1",
+      userSeq : $("#userSeq").val(),
+    };
+    $.ajax({
+      url: '/myPage/myTravelList',
+      type: 'get',
+      data: params,
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      success: function(data) {
+        list = [
+          ...data.myEventList,
+          ...data.myCultureList,
+          ...data.myFoodList,
+          ...data.myGeneralTravelList,
+          ...data.myLeisureSportsList,
+          ...data.myLodgingList,
+          ...data.myShoppingList,
+          ...data.myTourCourseList,
+        ];
+        renderTable(list);
+      },
+      error: function(err) {
+        console.log(err);
+      },
+    });
+  });
+
+  function renderTable(list) {
+    var tbody = $("table tbody"); // <tbody> 요소 선택
+    tbody.empty(); // 기존 내용을 비우기
+
+    list.forEach(function(item) {
+      var imageSrc = item.image ? item.image : '';
+      var row = `
+            <tr>
+                <td style="text-decoration-line: underline; width: 500px; cursor:pointer;" onclick="detailBtn('${item.contentId}', '${item.contentTypeId}', '${item.place}', '${item.image}','${item.address}')">${item.address}</td>
+                <td>${imageSrc ? `<img src="${imageSrc}" alt="이미지" style="width: 100px; height: 50px;">` : ''}</td>
+                <td style="width: 300px;">${item.place}</td>
+            </tr>
+        `;
+      tbody.append(row);
+    });
+  }
+
+
+  function detailBtn(contentId, contentTypeId, title, firstImage,addr1){
+
+    var params = {
+      contentId: contentId,
+      contentTypeId: contentTypeId,
+      title : title,
+      firstImage : firstImage,
+      addr1 : addr1,
+      hideFlag : "hide"
+    };
+    CommonUtil.openPopup('/travel/api/travelDetail', params, '여행코스 상세', 800, 600, '');
+
+  }
+  function getCoordinates(addresses, callback) {
+    console.log("==================seq2")
+    const apiKey = "AIzaSyCLfQbPsyguK63fGVLprSUDBOuhy2fLCs4"; // Google Geocoding API Key
+    const geocodePromises = addresses.map((address) => {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+      return $.getJSON(url).then((data) => {
+        if (data.status === "OK") {
+          const location = data.results[0].geometry.location;
+          return { address, lat: location.lat, lng: location.lng };
+        } else {
+          console.error("Geocoding failed for:", address, data.status);
+          return null;
+        }
+      });
+    });
+    // 모든 요청이 완료되면 callback 실행
+    Promise.all(geocodePromises).then(callback);
+  }
+  function googleMapPop() {
+    const addresses = list.map((item) => item.address).filter(Boolean);
+    console.log("==================seq1")
+
+    getCoordinates(addresses, (coordinates) => {
+      console.log("==================seq3")
+      console.log("Coordinates:", coordinates);
+      const params = { locations: JSON.stringify(coordinates) };
+      CommonUtil.openPopup("/myPage/myGoogleMapPop", params, "구글맵 보기", 800, 400, "");
+    });
+  }
+
+</script>
+<script type="text/javascript" th:src="@{/js/commonUtil/commonUtil.js}"></script>
+<script type="text/javascript" th:src="@{/js/commonUtil/common.js}"></script>
